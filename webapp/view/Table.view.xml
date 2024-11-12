@@ -1,0 +1,12 @@
+<mvc:View controllerName="snok.project.controller.Table"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+    xmlns="sap.m"
+    xmlns:table="sap.ui.table">
+    <table:Table 
+      id="table"
+    >
+    <table:columns>
+
+    </table:columns>
+    </table:Table>
+</mvc:View>
