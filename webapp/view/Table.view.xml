@@ -1,12 +1,16 @@
-<mvc:View controllerName="snok.project.controller.Table"
-    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
-    xmlns="sap.m"
-    xmlns:table="sap.ui.table">
-    <table:Table 
-      id="table"
+<mvc:View
+  controllerName="snok.project.controller.Table"
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns:table="sap.ui.table"
+  xmlns="sap.m">
+  
+  <table:Table
+    id="butterfliesTable"
+    rows="{path: 'butterfliesModel>/butterflies'}"
+    visibleRowCount="10"
+    selectionMode="Single"
+    navigationMode="Paginator"
     >
-    <table:columns>
-
-    </table:columns>
-    </table:Table>
+    
+  </table:Table>
 </mvc:View>
