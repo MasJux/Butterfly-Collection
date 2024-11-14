@@ -2,15 +2,33 @@
   controllerName="snok.project.controller.Table"
   xmlns:mvc="sap.ui.core.mvc"
   xmlns:table="sap.ui.table"
+  xmlns:l="sap.ui.layout"
   xmlns="sap.m">
-  
+  <HBox justifyContent="End">
+  <Button text="Wyczyść filtry" press="clearFilters" />
+  <SearchField id="searchField" value="{butterfliesModel>/searchValue}" liveChange="searchContent" />
+  </HBox>
   <table:Table
+    class="customTable"
     id="butterfliesTable"
     rows="{path: 'butterfliesModel>/butterflies'}"
     visibleRowCount="10"
-    selectionMode="Single"
+    selectionMode="None"
     navigationMode="Paginator"
+    rowActionCount="1"
     >
-    
   </table:Table>
+
+  <HBox justifyContent="SpaceBetween" alignItems="Center">
+
+    <Button id="editButton" press="editData" />
+    <HBox justifyContent="End">
+      <Button text="Zamroź" press="freezeData" />
+      <Input id="numberOfColumns" placeholder="liczba kolumn" />
+      <Input id="numberOfRows" placeholder="liczba wierszy" />
+      <Input id="numberOfButtomRow" placeholder="liczba dolnych wierszy" />
+    </HBox>
+  </HBox>
+
+
 </mvc:View>
