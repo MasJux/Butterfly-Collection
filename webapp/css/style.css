@@ -1,0 +1,14 @@
+.customTable {
+    border: 2px solid #646464; 
+    background-color: #f7f7f7;  
+}
+
+.customTable .sapUiTableRow {
+    background-color: #dddddd;  
+}
+
+.customTable .sapUiTableRowSelected {
+    background-color: #0071c5 !important;  
+    color: white;  
+}
+
