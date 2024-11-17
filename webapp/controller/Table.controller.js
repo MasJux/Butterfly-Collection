@@ -277,7 +277,8 @@
         }
       });
     },
-
+    
+      //usuwanie wybranych wierszy
       deleteRows: function(evt) {
         const table = this.byId("butterfliesTable");
         const oDataModel = this.getView().getModel('butterfliesModel');
@@ -291,14 +292,14 @@
           text = "Usunąć wiersze?";
         }
 
-        if(selectedIndex.length <= 0){
+        if(selectedIndex.length <= 0){ //sprawdz czy wybrano jakiekolwiek wiersze
           MessageToast.show("Nie wybrano żadnych wierszy");
         }else{
         MessageBox.confirm(text,{
             onClose: (Event) => {
             if(Event === "OK"){
               sap.ui.core.BusyIndicator.show(0);
-              for(let i=selectedIndex.length - 1; i >= 0; i--){
+              for(let i=selectedIndex.length - 1; i >= 0; i--){ //iteruj od ostatniego indexu
                 butterfliesData.splice(selectedIndex[i], 1);
               }
               oDataModel.setProperty('/butterflies', butterfliesData);
