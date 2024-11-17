@@ -13,7 +13,7 @@
     id="butterfliesTable"
     rows="{path: 'butterfliesModel>/butterflies'}"
     visibleRowCount="10"
-    selectionMode="None"
+    selectionMode="MultiToggle"
     navigationMode="Paginator"
     rowActionCount="1"
     >
@@ -23,6 +23,7 @@
 
     <Button id="editButton" press="editData" text="Edytuj"/>
     <Button id="saveButton" press="saveData" text="Zapisz" visible="false"/>
+    <Button id="deleteButton" press="deleteRows" text="Usuń wybrane rekordy"/>
     <HBox justifyContent="End">
       <Button text="Zamroź" press="freezeData" />
       <Input id="numberOfColumns" placeholder="liczba kolumn" />
