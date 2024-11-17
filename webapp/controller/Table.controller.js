@@ -345,8 +345,8 @@
                     const objectData = path.getObject(); //pobierz dane z wybranej ścieżki
                     const deepCopyData = JSON.parse(JSON.stringify(objectData)); //kopia danych niezależna od modelu
                     butterfliesData.push(deepCopyData);
-                  sap.ui.core.BusyIndicator.hide();
                   },
+                  sap.ui.core.BusyIndicator.hide(),
                   MessageToast.show("Zduplikowano wiersze o indexach "+ selectedIndex),
                 )
                   oDataModel.setProperty('/butterflies', butterfliesData);
