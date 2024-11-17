@@ -44,6 +44,7 @@
 
         if (butterfliesData && butterfliesData.length > 0) {
           const firstRow = butterfliesData[0];
+          console.log(firstRow);  
           const columnsNames = Object.keys(firstRow);
           
           //iteracyjne dodanie kolumn wraz z danymi do dataTable
@@ -277,16 +278,16 @@
         }
       });
     },
-    
+
       //usuwanie wybranych wierszy
       deleteRows: function(evt) {
         const table = this.byId("butterfliesTable");
         const oDataModel = this.getView().getModel('butterfliesModel');
         const butterfliesData = oDataModel.getProperty('/butterflies');
-        const selectedIndex= table.getSelectedIndices();
+        const selectedIndex= table.getSelectedIndices(); //pobierz indexy
         let text= '';
 
-        if(selectedIndex.length ===1){
+        if(selectedIndex.length ===1){ //w zależności od ilości zaznaczonych wierszy wybierz tekst dla MessageBox
           text = "Usunąć wiersz?";
         }else{
           text = "Usunąć wiersze?";
@@ -302,12 +303,32 @@
               for(let i=selectedIndex.length - 1; i >= 0; i--){ //iteruj od ostatniego indexu
                 butterfliesData.splice(selectedIndex[i], 1);
               }
-              oDataModel.setProperty('/butterflies', butterfliesData);
+              oDataModel.setProperty('/butterflies', butterfliesData); //ustaw nowe dane w modelu
               sap.ui.core.BusyIndicator.hide();
             } 
           }
         });
       }
+    },
+
+    addRow: function() {
+      const oDataModel = this.getView().getModel('butterfliesModel');
+      const butterfliesData = oDataModel.getProperty('/butterflies');
+
+      butterfliesData.push({});
+      oDataModel.setProperty('/butterflies', butterfliesData);
+      MessageToast.show("Dodano pusty wiersz o indexie:" + (butterfliesData.length - 1));
+    },
+
+    checkData: function() {
+      const table = this.byId("butterfliesTable")
+      const selectedIndex= table.getSelectedIndices();
+      console.log(selectedIndex);
     }
   });
 });
+//TODO:
+//1. wyszukiwanie w całej tabeli
+//2. duplikowanie wiersza
+//3. zmiana wartości pól (number * 3.3 && String +"ed")
+//4. wybór kolumny (number) i wyświetlenie jej sumy

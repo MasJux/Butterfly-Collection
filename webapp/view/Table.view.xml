@@ -16,15 +16,19 @@
     selectionMode="MultiToggle"
     navigationMode="Paginator"
     rowActionCount="1"
+
     >
   </table:Table>
 
   <HBox justifyContent="SpaceBetween" alignItems="Center">
-
-    <Button id="editButton" press="editData" text="Edytuj"/>
-    <Button id="saveButton" press="saveData" text="Zapisz" visible="false"/>
-    <Button id="deleteButton" press="deleteRows" text="Usuń wybrane rekordy"/>
-    <HBox justifyContent="End">
+    <HBox>
+    <Button id="checkButton" press="checkData" text="Check"/>
+      <Button id="addButton" press="addRow" text="Dodaj wiersz"/>
+      <Button id="editButton" press="editData" text="Edytuj"/>
+      <Button id="saveButton" press="saveData" text="Zapisz" visible="false"/>
+      <Button id="deleteButton" press="deleteRows" text="Usuń wybrane"/>
+    </HBox>
+    <HBox>
       <Button text="Zamroź" press="freezeData" />
       <Input id="numberOfColumns" placeholder="liczba kolumn" />
       <Input id="numberOfRows" placeholder="liczba wierszy" />
