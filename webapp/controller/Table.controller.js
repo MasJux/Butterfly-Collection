@@ -333,24 +333,27 @@
       const oDataModel = this.getView().getModel('butterfliesModel');
       const butterfliesData = oDataModel.getProperty('/butterflies');
       let text = "Zduplikować wiersze o indexach: "+selectedIndex+"?";
-
-      MessageBox.confirm(text,{
-        onClose: (Event) => {
-          if(Event === "OK"){
-            sap.ui.core.BusyIndicator.show(0);
-            selectedIndex.forEach((index) => {
-              const path = table.getContextByIndex(index); //pobierz ścieżkę wiersza po indexie
-              const objectData = path.getObject(); //pobierz dane z wybranej ścieżki
-              const deepCopyData = JSON.parse(JSON.stringify(objectData)); //kopia danych niezależna od modelu
-              butterfliesData.push(deepCopyData);
-             sap.ui.core.BusyIndicator.hide();
-            },
-            MessageToast.show("Zduplikowano wiersze o indexach "+ selectedIndex),
-          )
-            oDataModel.setProperty('/butterflies', butterfliesData);
-          }
-        }
+      if(selectedIndex.length <= 0){
+        MessageToast.show("Nie wybrano żadnych wierszy");
+      }else{
+            MessageBox.confirm(text,{
+              onClose: (Event) => {
+                if(Event === "OK"){
+                  sap.ui.core.BusyIndicator.show(0);
+                  selectedIndex.forEach((index) => {
+                    const path = table.getContextByIndex(index); //pobierz ścieżkę wiersza po indexie
+                    const objectData = path.getObject(); //pobierz dane z wybranej ścieżki
+                    const deepCopyData = JSON.parse(JSON.stringify(objectData)); //kopia danych niezależna od modelu
+                    butterfliesData.push(deepCopyData);
+                  sap.ui.core.BusyIndicator.hide();
+                  },
+                  MessageToast.show("Zduplikowano wiersze o indexach "+ selectedIndex),
+                )
+                  oDataModel.setProperty('/butterflies', butterfliesData);
+                }
+              }
       })}
+    }
   });
 });
 //TODO:
