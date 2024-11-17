@@ -181,6 +181,7 @@
         columns.forEach((column) => {
           const columnId = column.getId();
           const columnProperty = column.getFilterProperty();
+          console.log(columnProperty+" :columnProperty");
           let inputTemplate;
 
           if (columnId === 'Date'){
@@ -324,11 +325,35 @@
       const table = this.byId("butterfliesTable")
       const selectedIndex= table.getSelectedIndices();
       console.log(selectedIndex);
-    }
+    },
+
+    duplicateSelected: function() {
+      const table = this.byId("butterfliesTable")
+      const selectedIndex= table.getSelectedIndices();
+      const oDataModel = this.getView().getModel('butterfliesModel');
+      const butterfliesData = oDataModel.getProperty('/butterflies');
+      let text = "Zduplikować wiersze o indexach: "+selectedIndex+"?";
+
+      MessageBox.confirm(text,{
+        onClose: (Event) => {
+          if(Event === "OK"){
+            sap.ui.core.BusyIndicator.show(0);
+            selectedIndex.forEach((index) => {
+              const path = table.getContextByIndex(index); //pobierz ścieżkę wiersza po indexie
+              const objectData = path.getObject(); //pobierz dane z wybranej ścieżki
+              const deepCopyData = JSON.parse(JSON.stringify(objectData)); //kopia danych niezależna od modelu
+              butterfliesData.push(deepCopyData);
+             sap.ui.core.BusyIndicator.hide();
+            },
+            MessageToast.show("Zduplikowano wiersze o indexach "+ selectedIndex),
+          )
+            oDataModel.setProperty('/butterflies', butterfliesData);
+          }
+        }
+      })}
   });
 });
 //TODO:
 //1. wyszukiwanie w całej tabeli
-//2. duplikowanie wiersza
-//3. zmiana wartości pól (number * 3.3 && String +"ed")
-//4. wybór kolumny (number) i wyświetlenie jej sumy
+//2. zmiana wartości pól (number * 3.3 && String +"ed")
+//3. wybór kolumny (number) i wyświetlenie jej sumy

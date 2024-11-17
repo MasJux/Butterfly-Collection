@@ -27,6 +27,7 @@
       <Button id="editButton" press="editData" text="Edytuj"/>
       <Button id="saveButton" press="saveData" text="Zapisz" visible="false"/>
       <Button id="deleteButton" press="deleteRows" text="Usuń wybrane"/>
+      <Button id="duplicateButton" press="duplicateSelected" text="Duplikuj wybrane"/>
     </HBox>
     <HBox>
       <Button text="Zamroź" press="freezeData" />
