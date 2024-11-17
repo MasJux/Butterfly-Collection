@@ -21,7 +21,8 @@
 
   <HBox justifyContent="SpaceBetween" alignItems="Center">
 
-    <Button id="editButton" press="editData" />
+    <Button id="editButton" press="editData" text="Edytuj"/>
+    <Button id="saveButton" press="saveData" text="Zapisz" visible="false"/>
     <HBox justifyContent="End">
       <Button text="Zamroź" press="freezeData" />
       <Input id="numberOfColumns" placeholder="liczba kolumn" />

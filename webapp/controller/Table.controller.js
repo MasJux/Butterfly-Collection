@@ -1,22 +1,20 @@
-sap.ui.define(
+ sap.ui.define(
   [ 'sap/ui/core/mvc/Controller',
     'sap/ui/model/json/JSONModel', 
     'sap/ui/table/Column', 
     'sap/m/Label',
     'sap/m/Text',
-    'sap/m/Input',
-    'sap/ui/table/rowmodes/Fixed',
-    'sap/ui/table/RowAction',
-    'sap/ui/table/RowActionItem',
     'sap/ui/model/Filter',
     'sap/ui/model/FilterOperator',
-    'sap/m/ColumnListItem',],
-  function (Controller, JSONModel, Column, Label, Text, FixedRowMode, RowAction, RowActionItem, Filter, FilterOperator, Input, ColumnListItem) {
+  	'sap/m/MessageBox'],
+
+  function (Controller, JSONModel, Column, Label, Text, Filter, FilterOperator, MessageBox) {
     'use strict';
 
     return Controller.extend('snok.project.controller.Table', {
       onInit: function () {
         //załadoanie danych
+        sap.ui.core.BusyIndicator.show(0);
         let oDataModel = new JSONModel();
         oDataModel.loadData(sap.ui.require.toUrl('snok/project/model/data.json'));
         this.getView().setModel(oDataModel, 'butterfliesModel');
@@ -24,18 +22,16 @@ sap.ui.define(
 
         // wykonanie funkcji createTable po załadowaniu danych
         oDataModel.attachRequestCompleted(function() {
+          sap.ui.core.BusyIndicator.hide();
           console.log("Załadowano model:", oDataModel);
           this.createTable();
         }.bind(this));
 
+        this.editButton = this.byId("editButton");
+        this.saveButton = this.byId("saveButton");
+        
       },
-      rebindTable: function (customTableTemplate) {
-        const dataTable = this.byId('butterfliesTable');
-        dataTable.bindRows({
-          path: "butterfliesModel>/butterflies",
-          template: customTableTemplate
-        });
-      },
+
       //utworzenie tabeli ładującej dane dynamicznie (nazwy kolumn i zawartość wierszy)
       createTable: function () {
         const dataTable = this.byId('butterfliesTable');
@@ -45,8 +41,8 @@ sap.ui.define(
         if (butterfliesData && butterfliesData.length > 0) {
           const firstRow = butterfliesData[0];
           const columnsNames = Object.keys(firstRow);
+          
           //iteracyjne dodanie kolumn wraz z danymi do dataTable
-
           columnsNames.forEach((columnName) => {
             dataTable.addColumn(
               new Column({
@@ -63,7 +59,60 @@ sap.ui.define(
         }
       },
 
-      clearFilters: function(oEvent) {
+      //formatowanie danych po zapisaniu
+      formatCellsOnSave: function(columnProperty , unit, column) {
+        const oDataModel = this.getView().getModel('butterfliesModel');
+        const butterfliesData = oDataModel.getProperty('/butterflies');
+        //sprawdzenie czy dane posiadają jednostkę(mm, g, days)
+        butterfliesData.forEach((item, index) => {
+          let value = item[columnProperty];
+           if(value && !value.includes(unit)){
+            value += ' ' + unit;
+          }
+          //ustawienie zedytowanej wartości w modelu
+          oDataModel.setProperty(`/butterflies/${index}/${columnProperty}`, value);
+          //powrót do początkowego formatu danych(input+text -> text)
+          column.setTemplate(
+            new sap.m.Text({
+              wrapping: false,
+              text: `{butterfliesModel>${columnProperty}}`
+            })
+          );
+        });
+      },
+
+      //formatowanie potrzebne do edycji danych
+      formatCellsOnEdit: function(columnProperty , unit) {
+        const oDataModel = this.getView().getModel('butterfliesModel');
+        //tworzenie boxa z inputem i textem 
+        return new sap.m.HBox({
+          alignItems: "Center",
+          items: [
+            new sap.m.Input({
+              value: {
+                  path: `butterfliesModel>${columnProperty}`,
+                  mode: "TwoWay",
+                  formatter: function(value) {
+                      return value ? value.replace(/[^\d.-]/g, '') : '';
+                  }
+              },
+              type: "Number",
+              liveChange: function(oEvent) {
+                const newValue = oEvent.getParameter("newValue"); //pobierz nową wartość
+                const bindingContext = oEvent.getSource().getBindingContext('butterfliesModel'); //sprawdź w której komórce sie znajdujesz
+                const propertyPath = bindingContext.getPath() + `/${columnProperty}`; //zapisz ścieżkę edytowanej komórki
+                oDataModel.setProperty(propertyPath, newValue); //wartość komórki w modelu po edycji
+              }
+          }), 
+              new sap.m.Text({ //dodanie jednostki jako Text (widok)
+                  text: unit, 
+                  wrapping: false
+              })
+          ]
+      });
+      },
+
+      clearFilters: function() {
         const table = this.byId("butterfliesTable");
         const columns = table.getColumns();
 
@@ -72,7 +121,7 @@ sap.ui.define(
         }
       },
 
-      freezeData: function(oEvent) {
+      freezeData: function() {
         const view = this.getView();
         const table = this.byId("butterfliesTable");
 
@@ -97,7 +146,6 @@ sap.ui.define(
         const view = this.getView();
         const table = this.byId("butterfliesTable");
         const searchValue = oEvent.getParameter("newValue");
-        const oBinding = table.getBinding("rows");
         const columns = table.getColumns();
 
 
@@ -109,35 +157,121 @@ sap.ui.define(
         view.getModel('butterfliesModel').setProperty('/searchValue', searchValue);
       },
 
-    //   editData: function(oEvent) {
-    //     const dataTable = this.byId('butterfliesTable');
-    //     const columns = dataTable.getColumns();
-    //     const oDataModel = this.getView().getModel('butterfliesModel');
+      /*metoda odpowiada za ustawienie wszystkich komórek na edytowalne,
+      oprócz tego pełni funkcję walidacji ponieważ w komórkach numerycznych
+      blokuje możliwość wpisania tekstu
+      rozdziela także komórki które domyślnie mają format String np(Wingspan "22 mm") */
+      editData: function() {
+        const dataTable = this.byId('butterfliesTable');
+        const columns = dataTable.getColumns();
+        const oDataModel = this.getView().getModel('butterfliesModel');
+        //zapis danych przed edycją
+        this.prevData = JSON.parse(JSON.stringify(
+          oDataModel.getProperty('/butterflies')
+      ));
+      
+      if (!this.bIsEditing) {
+        this.bIsEditing = true;
+    
+        columns.forEach((column) => {
+          const columnId = column.getId();
+          const columnProperty = column.getFilterProperty();
+          let inputTemplate;
 
-    //     this.prevData = JSON.parse(JSON.stringify(
-    //       oDataModel.getProperty('/butterflies')
-    //   ));
+          if (columnId === 'Date'){
+            inputTemplate = new sap.m.Input({
+              value: `{butterfliesModel>${columnProperty}}`,
+              type: 'Date'
+            });
+          }
+          else if (columnId === 'Wingspan'){
+            inputTemplate = this.formatCellsOnEdit(columnProperty, "mm");
+          }
+          else if(columnId === 'Weight'){
+            inputTemplate = this.formatCellsOnEdit(columnProperty, "g");
+          }
+          else if(columnId === 'Price') {
+            inputTemplate = new sap.m.Input({
+              value: `{butterfliesModel>${columnProperty}}`,
+              type: 'Number'
+            });
+          }
+          else if(columnId === 'Abundance') {
+            inputTemplate = new sap.m.Input({
+              value: `{butterfliesModel>${columnProperty}}`,
+              type: 'Number'
+            });
+          }
+          else if(columnId === 'ColorRating') {
+            inputTemplate = new sap.m.Input({
+              value: `{butterfliesModel>${columnProperty}}`,
+              type: 'Number'
+            });
+          }
+          else if(columnId === 'Lifespan') {
+            inputTemplate = this.formatCellsOnEdit(columnProperty, "days");
+          }
+          else {
+            inputTemplate = new sap.m.Input({
+              value: `{butterfliesModel>${columnProperty}}`,
+            });
+          }
 
-          
-    //   if (!this.bIsEditing) {
-    //     this.bIsEditing = true;
-    
-    //     // Iteracja przez wszystkie kolumny i zmiana szablonu na Input
-    //     columns.forEach((column) => {
-    //       const columnId = column.getId();
-    //       const columnProperty = column.getFilterProperty();
-    
-    //       // Ustawienie nowego szablonu z Input zamiast Text
-    //       column.setTemplate(
-    //         new sap.m.Input({
-    //           value: `{butterfliesModel>${columnProperty}}`
-    //         })
-    //       );
-    //     });
-    
-    //     // Odswieżenie tabeli, aby pokazać Inputy
-    //     dataTable.getBinding("rows").refresh();
-    //   }
-    // }
-  });
+          column.setTemplate(inputTemplate);
+        });
+        sap.ui.core.BusyIndicator.hide();
+        this.editButton.setVisible(false);
+        this.saveButton.setVisible(true);
+      }
+    },
+
+    /*metoda odpowiada za zapisanie danych po edycji lub
+    przywrócenie poprzednich danych w przypadku anulowania edycji
+    oprócz tego ustawia format danych które mają dwa typt np(Wingspan "22 mm") */
+    saveData: function() {
+      const dataTable = this.byId('butterfliesTable');
+      const columns = dataTable.getColumns();
+      const oDataModel = this.getView().getModel('butterfliesModel');
+      console.log(this.prevDat);
+      sap.ui.core.BusyIndicator.show(0);
+
+     MessageBox.confirm("Zapisac dane?",{
+      onClose: (Event) => {
+        console.log(this.bIsEditing);
+        if(Event === "OK") {
+          columns.forEach((column) => {
+            const columnId = column.getId();
+            const columnProperty = column.getFilterProperty();
+              
+      if(columnId === 'Wingspan'){
+        this.formatCellsOnSave(columnProperty, "mm", column)
+      }
+      else if(columnId === 'Weight'){
+        this.formatCellsOnSave(columnProperty, "g", column)
+      }
+      else if(columnId === 'Lifespan'){
+        this.formatCellsOnSave(columnProperty, "days", column)
+      }
+      else{
+        column.setTemplate(
+          new sap.m.Text({
+            wrapping: false,
+            text: `{butterfliesModel>${columnProperty}}`
+          })
+        );
+      }
+      });
+      this.saveButton.setVisible(false);
+      this.editButton.setVisible(true);
+      this.bIsEditing = false;
+        }else{
+          console.log(this.prevData);
+          const dataBeforeEdit = JSON.parse(JSON.stringify(this.prevData))
+          oDataModel.setProperty('/butterflies', dataBeforeEdit);
+        }
+        sap.ui.core.BusyIndicator.hide();
+      }
+    });
+},
+});
 });
