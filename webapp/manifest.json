@@ -95,6 +95,10 @@
       "type": "XML",
       "async": true,
       "id": "App"
+    },
+    "resourceRoots": {
+      "snok.project": "./",
+      "snok.project.models": "./models"
     }
   }
 }
