@@ -1,29 +1,16 @@
  sap.ui.define(
   [ 'sap/ui/core/mvc/Controller',
-    'sap/ui/model/json/JSONModel', 
-    'sap/ui/table/Column', 
-    'sap/m/Label',
-    'sap/m/Text',
-    'sap/ui/model/Filter',
-    'sap/ui/model/FilterOperator',
-  	'sap/m/MessageBox',
-    'sap/m/MessageToast',
-    'sap/m/Dialog',
-    'sap/m/ComboBox',
-    'sap/ui/core/Item',
-    'sap/m/Button',
-    'sap/ui/model/resource/ResourceModel',
     '../model/TableModel',
     '../utils/TableManagement',
     '../utils/Formatters',
     '../utils/DataService'
 ],
 
-  function (Controller, JSONModel, Column, Label, Text, Filter, FilterOperator, MessageBox, MessageToast, Dialog, ComboBox, Item, Button, ResourceModel, TableModel, TableManagement, Formatters, DataService) {
+  function (Controller,TableModel, TableManagement, Formatters, DataService) {
     'use strict';
 
     return Controller.extend('snok.project.controller.Table', {
-      onInit: function () {
+      onInit() {
         this.TableModel = new TableModel(this);
         this.TableManagement = TableManagement;
         this.Formatters = Formatters;
@@ -34,7 +21,7 @@
       },
 
       //tworzenie modelu tłumaczeń i18n i modelu z danymi
-      createModels: function() {
+      createModels() {
         const i18nModel = this.TableModel.createI18nModel();
         this.getView().setModel(i18nModel, "i18n");
 
@@ -42,57 +29,57 @@
       },
 
       //comboBox do zmiany języka
-      changeLanguage: function(oEvent) {
+      changeLanguage(oEvent) {
         this.TableModel.changeLanguage(oEvent);
       },
 
       //utworzenie tabeli ładującej dane dynamicznie (nazwy kolumn i zawartość wierszy)
-      createTable: function() {
+      createTable() {
         TableManagement.createTable(this);
       },
 
       //edycja danych z walidacją
-      editData: function() {
+      editData() {
         TableManagement.editData(this);
       },
 
       //zapis danych po edytowaniu
-      saveData: function() {
+      saveData() {
         TableManagement.saveData(this);
       },
 
       //usunięcie wybranych wierszy
-      deleteRows: function() {
+      deleteRows() {
         TableManagement.deleteRows(this);
       },
 
       //dodanie nowego pustego wiersz
-      addRow: function() {
+      addRow() {
         TableManagement.addRow(this);
       },
 
       //duplikowanie wybranych wierszy
-      duplicateSelected: function() {
+      duplicateSelected() {
         TableManagement.duplicateSelected(this);
       },
 
       //custom zmiana wartości (number*3.3 || String +"ed")
-      changeDataValue: function() {
+      changeDataValue() {
         DataService.changeDataValue(this);
       },
 
       //suma wartości numerycznych lub xxx,xx przy stringu
-      sumValues: function() {
+      sumValues() {
         DataService.sumValues(this);
       },
       
       //mrożenie kolumn || wierszy
-      freezeData: function() {
+      freezeData() {
         TableManagement.freezeData(this);
       },
 
       //czyszczenie filtrów
-      clearFilters: function() {
+      clearFilters() {
         TableManagement.clearFilters(this);
       }
     });

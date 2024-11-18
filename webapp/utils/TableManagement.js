@@ -15,7 +15,7 @@ function(Column, Label, Text, MessageBox, MessageToast, ComboBox, Dialog, Button
     'use strict';
 
     return {
-        createTable: function (controller) {
+        createTable (controller) {
         const dataTable = controller.byId('butterfliesTable');
         const oDataModel = controller.getView().getModel('butterfliesModel');
         const butterfliesData = oDataModel.getProperty('/butterflies');
@@ -42,7 +42,7 @@ function(Column, Label, Text, MessageBox, MessageToast, ComboBox, Dialog, Button
         }
     },
 
-        editData: function(controller) {
+        editData(controller) {
             const dataTable = controller.byId('butterfliesTable');
             const columns = dataTable.getColumns();
             const oDataModel = controller.getView().getModel('butterfliesModel');
@@ -107,7 +107,7 @@ function(Column, Label, Text, MessageBox, MessageToast, ComboBox, Dialog, Button
             }
         },
 
-        saveData: function(controller) {
+        saveData(controller) {
             const dataTable = controller.byId('butterfliesTable');
             const columns = dataTable.getColumns();
             const oDataModel = controller.getView().getModel('butterfliesModel');
@@ -156,7 +156,7 @@ function(Column, Label, Text, MessageBox, MessageToast, ComboBox, Dialog, Button
             });
         },
 
-        deleteRows: function(controller) {
+        deleteRows(controller) {
             const table = controller.byId("butterfliesTable");
             const oDataModel = controller.getView().getModel('butterfliesModel');
             const butterfliesData = oDataModel.getProperty('/butterflies');
@@ -191,7 +191,7 @@ function(Column, Label, Text, MessageBox, MessageToast, ComboBox, Dialog, Button
             }
         },
 
-        addRow: function(controller) {
+        addRow(controller) {
             const oDataModel = controller.getView().getModel('butterfliesModel');
             const butterfliesData = oDataModel.getProperty('/butterflies');
             const i18nModel = controller.getView().getModel("i18n");
@@ -202,7 +202,7 @@ function(Column, Label, Text, MessageBox, MessageToast, ComboBox, Dialog, Button
             MessageToast.show(emptyRowAdded+ " " + (butterfliesData.length - 1));
         },
 
-        duplicateSelected: function(controller) {
+        duplicateSelected(controller) {
             const table = controller.byId("butterfliesTable")
             const selectedIndex= table.getSelectedIndices();
             const oDataModel = controller.getView().getModel('butterfliesModel');
@@ -235,7 +235,7 @@ function(Column, Label, Text, MessageBox, MessageToast, ComboBox, Dialog, Button
             })}
         },
 
-        freezeData: function(controller) {
+        freezeData(controller) {
             const view = controller.getView();
             const table = controller.byId("butterfliesTable");
     
@@ -256,7 +256,7 @@ function(Column, Label, Text, MessageBox, MessageToast, ComboBox, Dialog, Button
             table.setFixedColumnCount(parsedColumnsCount);
         },
           
-        clearFilters: function(controller) {
+        clearFilters(controller) {
             const table = controller.byId("butterfliesTable");
             const columns = table.getColumns();
 

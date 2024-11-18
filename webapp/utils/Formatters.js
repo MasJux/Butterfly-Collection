@@ -5,7 +5,7 @@ function() {
     
     return {
         //formatowanie po zapisie do poprzedniego stanu(nadanie jednostek)
-        formatCellsOnSave: function( columnProperty , unit, column, oDataModel) {
+        formatCellsOnSave( columnProperty , unit, column, oDataModel) {
             const butterfliesData = oDataModel.getProperty('/butterflies');
             //sprawdzenie czy dane posiadają jednostkę(mm, g, days)
             butterfliesData.forEach((item, index) => {
@@ -26,7 +26,7 @@ function() {
             },
         
         //formatowanie potrzebne do edycji danych
-        formatCellsOnEdit: function( columnProperty , unit, oDataModel) {
+        formatCellsOnEdit( columnProperty , unit, oDataModel) {
             //tworzenie boxa z inputem i textem 
             return new sap.m.HBox({
                 alignItems: "Center",
@@ -55,7 +55,7 @@ function() {
             });
         },
 
-        countValue: function(value, selectedColumn, unit){
+        countValue(value, selectedColumn, unit){
             const newValue = value[selectedColumn].replace(/[^\d.-]/g, '') //usun text jezeli jest i zostaw sam number
             let changedValue = newValue * 3.3
             changedValue = changedValue.toFixed(2)

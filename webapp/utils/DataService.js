@@ -13,7 +13,7 @@ function(Item, ComboBox, Dialog, Button, MessageToast, Text, Formatters) {
     'use strict';
 
     return {
-        changeDataValue: function(controller) {
+        changeDataValue(controller) {
             const dataTable = controller.byId('butterfliesTable');
             const columns = dataTable.getColumns();
             const oDataModel = controller.getView().getModel('butterfliesModel');
@@ -128,7 +128,7 @@ function(Item, ComboBox, Dialog, Button, MessageToast, Text, Formatters) {
             }).open();
         },
 
-        sumValues: function(controller) {
+        sumValues(controller) {
             const dataType={
                 "GUID": "String",
                 "Name": "String",
