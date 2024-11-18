@@ -3,10 +3,20 @@
   xmlns:mvc="sap.ui.core.mvc"
   xmlns:table="sap.ui.table"
   xmlns:l="sap.ui.layout"
-  xmlns="sap.m">
-  <HBox justifyContent="End">
-  <Button text="Wyczyść filtry" press="clearFilters" />
-  <SearchField id="searchField" value="{butterfliesModel>/searchValue}" liveChange="searchContent" />
+  xmlns="sap.m"
+  xmlns:core="sap.ui.core">
+
+  <HBox justifyContent="SpaceBetween">
+    <ComboBox id="languageComboBox" change="changeLanguage" selectedKey="pl">
+      <items>
+        <core:Item key="pl" text="{i18n>polish}"/>
+        <core:Item key="en" text="{i18n>english}"/>
+      </items>
+    </ComboBox>
+    <HBox justifyContent="End">
+      <Button text="{i18n>clearFilters}" press="clearFilters" />
+      <SearchField id="searchField" value="{butterfliesModel>/searchValue}" liveChange="searchContent" placeholder="{i18n>search}"/>
+    </HBox>
   </HBox>
   <table:Table
     class="customTable"
@@ -14,7 +24,6 @@
     rows="{path: 'butterfliesModel>/butterflies'}"
     visibleRowCount="10"
     selectionMode="MultiToggle"
-    navigationMode="Paginator"
     rowActionCount="1"
 
     >
@@ -22,21 +31,21 @@
 
   <HBox justifyContent="SpaceBetween" alignItems="Center">
     <HBox>
-      <Button id="addButton" press="addRow" text="Dodaj wiersz"/>
-      <Button id="editButton" press="editData" text="Edytuj"/>
-      <Button id="saveButton" press="saveData" text="Zapisz" visible="false"/>
-      <Button id="deleteButton" press="deleteRows" text="Usuń wybrane"/>
-      <Button id="duplicateButton" press="duplicateSelected" text="Duplikuj wybrane"/>
+      <Button id="addButton" press="addRow" text="{i18n>addRow}"/>
+      <Button id="editButton" press="editData" text="{i18n>edit}"/>
+      <Button id="saveButton" press="saveData" text="{i18n>save}" visible="false"/>
+      <Button id="deleteButton" press="deleteRows" text="{i18n>deleteSelected}"/>
+      <Button id="duplicateButton" press="duplicateSelected" text="{i18n>duplicateSelected}"/>
     </HBox>
     <HBox>
-      <Button id="changeValueButton" press="changeDataValue" text="Zmień wartość pól"/>
-      <Button id="sumValuesButton" press="sumValues" text="Oblicz sumę"/>
+      <Button id="changeValueButton" press="changeDataValue" text="{i18n>changeCellsValue}"/>
+      <Button id="sumValuesButton" press="sumValues" text="{i18n>sumValues}"/>
     </HBox>
     <HBox>
-      <Button text="Zamroź" press="freezeData" />
-      <Input id="numberOfColumns" placeholder="liczba kolumn" />
-      <Input id="numberOfRows" placeholder="liczba wierszy" />
-      <Input id="numberOfButtomRow" placeholder="liczba dolnych wierszy" />
+      <Button text="{i18n>freeze}" press="freezeData" />
+      <Input id="numberOfColumns" placeholder="{i18n>countCols}" />
+      <Input id="numberOfRows" placeholder="{i18n>countRows}" />
+      <Input id="numberOfButtomRow" placeholder="{i18n>countBottomRows}" />
     </HBox>
   </HBox>
 

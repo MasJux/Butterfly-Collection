@@ -50,7 +50,9 @@
       "i18n": {
         "type": "sap.ui.model.resource.ResourceModel",
         "settings": {
-          "bundleName": "snok.project.i18n.i18n"
+          "bundleName": "snok.project.i18n.i18n",
+          "supportedLocales": ["pl", "en"],
+          "fallbackLocale": "pl"
         }
       }
     },
@@ -93,6 +95,10 @@
       "type": "XML",
       "async": true,
       "id": "App"
+    },
+    "resourceRoots": {
+      "snok.project": "./",
+      "snok.project.models": "./models"
     }
   }
 }
