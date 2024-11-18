@@ -8,19 +8,22 @@
     'sap/ui/model/FilterOperator',
   	'sap/m/MessageBox',
     'sap/m/MessageToast',
-    'sap/ui/table/RowAction',
-    'sap/ui/table/RowActionItem',
-    "sap/m/Dialog",
-    "sap/m/ComboBox",
-    "sap/ui/core/Item",
-    "sap/m/Button"
+    'sap/m/Dialog',
+    'sap/m/ComboBox',
+    'sap/ui/core/Item',
+    'sap/m/Button',
+    'sap/ui/model/resource/ResourceModel',
 ],
 
-  function (Controller, JSONModel, Column, Label, Text, Filter, FilterOperator, MessageBox, MessageToast, RowAction, RowActionItem, Dialog, ComboBox, Item, Button) {
+  function (Controller, JSONModel, Column, Label, Text, Filter, FilterOperator, MessageBox, MessageToast, Dialog, ComboBox, Item, Button, ResourceModel) {
     'use strict';
 
     return Controller.extend('snok.project.controller.Table', {
       onInit: function () {
+        const i18nModel = new ResourceModel({
+          bundleName: "snok.project.i18n.i18n"
+      });
+        this.getView().setModel(i18nModel, "i18n");
         //załadoanie danych
         sap.ui.core.BusyIndicator.show(0);
         let oDataModel = new JSONModel();
@@ -31,20 +34,29 @@
         // wykonanie funkcji createTable po załadowaniu danych
         oDataModel.attachRequestCompleted(function() {
           sap.ui.core.BusyIndicator.hide();
-          console.log("Załadowano model:", oDataModel);
           this.createTable();
         }.bind(this));
 
-        this.editButton = this.byId("editButton");
-        this.saveButton = this.byId("saveButton");
-        
         //model ze stanami zmiany wartości pól w danych kolumnach
         const viewModel = new sap.ui.model.json.JSONModel({
           columnStates: {}
         });
         this.getView().setModel(viewModel, "viewModel");
+
+        this.editButton = this.byId("editButton");
+        this.saveButton = this.byId("saveButton");
       },
 
+      changeLanguage: function(oEvent) {
+        const language = oEvent.getSource().getSelectedItem().getKey();  
+        sap.ui.getCore().getConfiguration().setLanguage(language);
+        var oResourceModel = new ResourceModel({
+          bundleName: "snok.project.i18n.i18n"
+        });
+  
+        // Aktualizujemy model i18n
+        this.getView().setModel(oResourceModel, "i18n");
+      },
       //utworzenie tabeli ładującej dane dynamicznie (nazwy kolumn i zawartość wierszy)
       createTable: function () {
         const dataTable = this.byId('butterfliesTable');
@@ -247,10 +259,13 @@
         const dataTable = this.byId('butterfliesTable');
         const columns = dataTable.getColumns();
         const oDataModel = this.getView().getModel('butterfliesModel');
+        const i18nModel = this.getView().getModel("i18n");
+        const saveDataQuestion = i18nModel.getResourceBundle().getText("saveDataQuestion");
+
         console.log(this.prevDat);
         sap.ui.core.BusyIndicator.show(0);
 
-      MessageBox.confirm("Zapisac dane?",{
+      MessageBox.confirm(saveDataQuestion,{
         onClose: (Event) => {
           console.log(this.bIsEditing);
           if(Event === "OK") {
@@ -290,21 +305,25 @@
     },
 
       //usuwanie wybranych wierszy
-      deleteRows: function(evt) {
+      deleteRows: function() {
         const table = this.byId("butterfliesTable");
         const oDataModel = this.getView().getModel('butterfliesModel');
         const butterfliesData = oDataModel.getProperty('/butterflies');
         const selectedIndex= table.getSelectedIndices(); //pobierz indexy
+        const i18nModel = this.getView().getModel("i18n");
+        const noRowsSelected = i18nModel.getResourceBundle().getText("noRowsSelected");
+        const oneRowQuestion = i18nModel.getResourceBundle().getText("oneRowQuestion");
+        const severalRowsQuestion = i18nModel.getResourceBundle().getText("severalRowsQuestion");
         let text= '';
 
         if(selectedIndex.length ===1){ //w zależności od ilości zaznaczonych wierszy wybierz tekst dla MessageBox
-          text = "Usunąć wiersz?";
+          text = oneRowQuestion;
         }else{
-          text = "Usunąć wiersze?";
+          text = severalRowsQuestion;
         }
 
         if(selectedIndex.length <= 0){ //sprawdz czy wybrano jakiekolwiek wiersze
-          MessageToast.show("Nie wybrano żadnych wierszy");
+          MessageToast.show(noRowsSelected);
         }else{
         MessageBox.confirm(text,{
             onClose: (Event) => {
@@ -320,24 +339,31 @@
         });
       }
     },
-
+      //dodawanie pustego wiersza
       addRow: function() {
         const oDataModel = this.getView().getModel('butterfliesModel');
         const butterfliesData = oDataModel.getProperty('/butterflies');
+        const i18nModel = this.getView().getModel("i18n");
+        const emptyRowAdded = i18nModel.getResourceBundle().getText("emptyRowAdded");
 
         butterfliesData.push({});
         oDataModel.setProperty('/butterflies', butterfliesData);
-        MessageToast.show("Dodano pusty wiersz o indexie:" + (butterfliesData.length - 1));
+        MessageToast.show(emptyRowAdded+ " " + (butterfliesData.length - 1));
       },
-
+      //duplikowanie zaznaczonych wierszy
       duplicateSelected: function() {
         const table = this.byId("butterfliesTable")
         const selectedIndex= table.getSelectedIndices();
         const oDataModel = this.getView().getModel('butterfliesModel');
         const butterfliesData = oDataModel.getProperty('/butterflies');
-        let text = "Zduplikować wiersze o indexach: "+selectedIndex+"?";
+        const i18nModel = this.getView().getModel("i18n");
+        const duplicateQuestion = i18nModel.getResourceBundle().getText("duplicateQuestion");
+        const noRowsSelected = i18nModel.getResourceBundle().getText("noRowsSelected");
+        const duplicateInfo = i18nModel.getResourceBundle().getText("duplicateInfo");
+
+        let text = duplicateQuestion+" "+selectedIndex+"?";
         if(selectedIndex.length <= 0){
-          MessageToast.show("Nie wybrano żadnych wierszy");
+          MessageToast.show(noRowsSelected);
         }else{
               MessageBox.confirm(text,{
                 onClose: (Event) => {
@@ -350,13 +376,14 @@
                       butterfliesData.push(deepCopyData);
                     },
                     sap.ui.core.BusyIndicator.hide(),
-                    MessageToast.show("Zduplikowano wiersze o indexach "+ selectedIndex),
+                    MessageToast.show(duplicateInfo+" "+ selectedIndex),
                   )
                     oDataModel.setProperty('/butterflies', butterfliesData);
                   }
                 }
         })}
       },
+
       countValue: function(value, selectedColumn, unit){
         const newValue = value[selectedColumn].replace(/[^\d.-]/g, '') //usun text jezeli jest i zostaw sam number
         let changedValue = newValue * 3.3
@@ -365,6 +392,7 @@
         return finalValue
       },
 
+      //zmiana wartości wybranej kolumny (number*3.3/string+"ed")
       changeDataValue: function() {
         const dataTable = this.byId('butterfliesTable');
         const columns = dataTable.getColumns();
@@ -372,6 +400,11 @@
         const butterfliesData = oDataModel.getProperty('/butterflies');
         const viewModel = this.getView().getModel("viewModel");
         const columnStates = viewModel.getProperty("/columnStates") || {};
+        const i18nModel = this.getView().getModel("i18n");
+        const cancel = i18nModel.getResourceBundle().getText("cancel");
+        const save = i18nModel.getResourceBundle().getText("save");
+        const changedValues = i18nModel.getResourceBundle().getText("changedValues");
+        const chooseColumnForChange = i18nModel.getResourceBundle().getText("chooseColumnForChange");
 
         const dataType={
           "GUID": "String",
@@ -412,10 +445,10 @@
       comboBox.addStyleClass("changingDataComboBox");
 
       const changeDataDialog = new Dialog({
-        title: "Wybierz kolumnę do zmiany",
+        title: chooseColumnForChange,
         content: [comboBox],
         beginButton: new Button({
-          text: "Zapisz",
+          text: save,
           press: () => {
             sap.ui.core.BusyIndicator.show(0);
               const selectedColumn = comboBox.getSelectedKey();
@@ -462,12 +495,12 @@
           comboBox.setEnabled(false);
         }
         changeDataDialog.close();
-        MessageToast.show("Zmieniono wartości w kolumnie: " + selectedColumn);
+        MessageToast.show(changedValues+" " + selectedColumn);
         sap.ui.core.BusyIndicator.hide();
       }
     }),
       endButton: new Button({
-        text: "Anuluj",
+        text: cancel,
         press: () => {
           changeDataDialog.close();
         }
@@ -475,6 +508,7 @@
       }).open();
     },
 
+      //sumowanie wybranej kolumny
       sumValues: function() {
         const dataType={
           "GUID": "String",
@@ -492,11 +526,17 @@
           "Migration Pattern": "String",
           "Threat Level": "String"
           }
-          let sum;
+          let totalSum;
           const dataTable = this.byId('butterfliesTable');
           const columns = dataTable.getColumns();
           const oDataModel = this.getView().getModel('butterfliesModel');
           const butterfliesData = oDataModel.getProperty('/butterflies');
+          const i18nModel = this.getView().getModel("i18n");
+          const cancel = i18nModel.getResourceBundle().getText("cancel");
+          const sum = i18nModel.getResourceBundle().getText("sum");
+          const calculateSum = i18nModel.getResourceBundle().getText("countSum");
+          const selectColForSum = i18nModel.getResourceBundle().getText("selectColForSum");
+
           const options = columns.map((column) => {
             const columnProperty = column.getFilterProperty();
               return new Item({
@@ -506,7 +546,7 @@
             })
 
             const result = new Text({
-              text: "Suma: 0"
+              text: sum+": 0"
             });
 
             const comboBox = new ComboBox({
@@ -514,34 +554,32 @@
             })
     
             const countDataDialog = new Dialog({
-              title: "Wybierz kolumnę do zsumowania",
+              title: selectColForSum,
               content: [
                 comboBox,
                 result
             ],  
               beginButton: new Button({
-                text: "Oblicz sumę",
+                text: calculateSum,
                 press: () => {
-                  sum=0;
+                  totalSum=0;
   
                   const selectedColumn = comboBox.getSelectedKey();
                   butterfliesData.forEach((value) => { 
-                    if(dataType[selectedColumn] === "Number" ){
-                      sum += parseFloat(value[selectedColumn])
-                    }else{
-                      sum = "test"
+                    if(dataType[selectedColumn] === "Number" && value[selectedColumn] !== undefined){
+                      totalSum += parseFloat(value[selectedColumn])
                     }
                   })
                   if(dataType[selectedColumn] === "Number"){
-                    result.setText("Suma: " + sum.toFixed(2));
+                    result.setText(sum +": "+ totalSum.toFixed(2));
                   }else{
-                    result.setText("Suma: xxxx,xx");
+                    result.setText(sum+ ": xxxx,xx");
                   }
 
                 }
               }),
               endButton: new Button({
-                text: "Anuluj",
+                text: cancel,
                 press: () => {
                   countDataDialog.close();
                 }
@@ -550,5 +588,3 @@
       }
     });
   });
-//TODO:
-//1. wyszukiwanie w całej tabeli
