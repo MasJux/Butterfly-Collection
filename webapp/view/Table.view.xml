@@ -22,12 +22,15 @@
 
   <HBox justifyContent="SpaceBetween" alignItems="Center">
     <HBox>
-    <Button id="checkButton" press="checkData" text="Check"/>
       <Button id="addButton" press="addRow" text="Dodaj wiersz"/>
       <Button id="editButton" press="editData" text="Edytuj"/>
       <Button id="saveButton" press="saveData" text="Zapisz" visible="false"/>
       <Button id="deleteButton" press="deleteRows" text="Usuń wybrane"/>
       <Button id="duplicateButton" press="duplicateSelected" text="Duplikuj wybrane"/>
+    </HBox>
+    <HBox>
+      <Button id="changeValueButton" press="changeDataValue" text="Zmień wartość pól"/>
+      <Button id="sumValuesButton" press="sumValues" text="Oblicz sumę"/>
     </HBox>
     <HBox>
       <Button text="Zamroź" press="freezeData" />
